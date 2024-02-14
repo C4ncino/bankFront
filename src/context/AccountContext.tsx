@@ -5,7 +5,7 @@ export const AccountContext = React.createContext<AccountContextModel>({
 
     login: async () => false,
     get_account: () => "",
-    create_account: () => { },
+    create_account: async () => "",
     movement: async () => ""
 })
 
@@ -54,7 +54,8 @@ const AccountContextProvider = ({ children }: Props) => {
 
                 tempAccounts[id] = {
                     account: data.account,
-                    balance: data.balance
+                    balance: data.balance,
+                    token: data.token
                 }
 
                 return tempAccounts
@@ -68,12 +69,14 @@ const AccountContextProvider = ({ children }: Props) => {
 
     }
 
-    const create_account = () => {
-        fetch(get_endpoint("new_account")).then(
-            (response) => response.json()
-        ).then(
-            (data) => setAccounts([...accounts, data])
-        )
+    const create_account = async () => {
+        const response = await fetch(get_endpoint("new_account"))
+
+        const data = await response.json()
+
+        setAccounts([...accounts, data])
+
+        return data.account
     }
 
 
@@ -94,15 +97,16 @@ const AccountContextProvider = ({ children }: Props) => {
         let message = ""
         let response
 
-        message = "nada"
+        const headers = {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + accounts[props.id].token
+        }
 
         switch (props.type) {
             case 1:
                 response = await fetch(get_endpoint("deposit"), {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
+                    headers: headers,
                     body: JSON.stringify({
                         'account': accounts[props.id].account,
                         'amount': props.amount
@@ -113,9 +117,7 @@ const AccountContextProvider = ({ children }: Props) => {
             case 2:
                 response = await fetch(get_endpoint("withdrawal"), {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
+                    headers: headers,
                     body: JSON.stringify({
                         'account': accounts[props.id].account,
                         'amount': props.amount
@@ -126,9 +128,7 @@ const AccountContextProvider = ({ children }: Props) => {
             case 3:
                 response = await fetch(get_endpoint("transfer"), {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
+                    headers: headers,
                     body: JSON.stringify({
                         'origin': accounts[props.id].account,
                         'destiny': props.destiny,
@@ -149,7 +149,8 @@ const AccountContextProvider = ({ children }: Props) => {
 
                     tempAccounts[props.id] = {
                         account: data.account,
-                        balance: data.balance
+                        balance: data.balance,
+                        token: tempAccounts[props.id].token
                     }
 
                     return tempAccounts

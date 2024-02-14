@@ -17,6 +17,6 @@ type AccountContextModel = {
 
     login: (account: string) => Promise<boolean>
     get_account: (account: string) => string
-    create_account: () => void
+    create_account: () => Promise<string>
     movement: (props: movementProps) => Promise<string>
 }

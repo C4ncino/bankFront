@@ -10,6 +10,7 @@ const Home = () => {
     const [login, setLogin] = useState(true)
     const [account, setAccount] = useState('')
     const [msg, setMsg] = useState('')
+    const [newAccount, setNewAccount] = useState('')
 
     const onChange = (e: ChangeEvent<HTMLInputElement>) => {
         setAccount(e.target.value)
@@ -34,8 +35,8 @@ const Home = () => {
             }
         }
         else {
-            context.create_account()
-            navigate(`account/${context.accounts.length - 1}`)
+            const newAcc = await context.create_account()
+            setNewAccount(newAcc)
         }
     }
 
@@ -44,30 +45,41 @@ const Home = () => {
             <h2 className="text-xl">Hola, Bienvenido</h2>
 
             <section className="pt-4 flex items-center justify-center">
-                <form className="flex flex-col gap-y-3 border-2 p-4 rounded-lg min-w-64" onSubmit={onSubmit}>
-                    {login ? (
-                        <>
-                            <label htmlFor="accountN">Número de Cuenta</label>
-                            <input
-                                id="accountN" placeholder="Ingrese su número de cuenta"
-                                className="border-2 rounded-lg p-1"
-                                value={account} onChange={onChange}
-                            />
+                {newAccount ? (
+                    <div className="flex flex-col gap-y-3 border-2 p-4 rounded-lg min-w-64">
+                        <h3>Cuenta Creada Correctamente</h3>
+                        <p>Su cuenta es {newAccount}</p>
 
-                            <p id="error" className="text-red-500 text-sm">{msg}</p>
-                        </>
-                    ) : (
-                        <p>Esta seguro que desea crear una cuenta</p>
-                    )}
+                        <button onClick={() => { setLogin(!login); setNewAccount("") }} className="text-blue-600">
+                            Ir al Login
+                        </button>
+                    </div>
+                ) : (
+                    <form className="flex flex-col gap-y-3 border-2 p-4 rounded-lg min-w-64" onSubmit={onSubmit}>
+                        {login ? (
+                            <>
+                                <label htmlFor="accountN">Número de Cuenta</label>
+                                <input
+                                    id="accountN" placeholder="Ingrese su número de cuenta"
+                                    className="border-2 rounded-lg p-1"
+                                    value={account} onChange={onChange}
+                                />
 
-                    <button className="border-2 p-1 rounded-lg hover:bg-gray-600 hover:text-white w-32 mx-auto">
-                        {login ? 'Ingresar' : 'Crear Cuenta'}
-                    </button>
+                                <p id="error" className="text-red-500 text-sm">{msg}</p>
+                            </>
+                        ) : (
+                            <p>Esta seguro que desea crear una cuenta</p>
+                        )}
 
-                    <button type="button" onClick={() => setLogin(!login)} className="text-blue-600">
-                        {login ? 'Aún no tiene cuenta?' : 'Ya tiene cuenta?'}
-                    </button>
-                </form>
+                        <button className="border-2 p-1 rounded-lg hover:bg-gray-600 hover:text-white w-32 mx-auto">
+                            {login ? 'Ingresar' : 'Crear Cuenta'}
+                        </button>
+
+                        <button type="button" onClick={() => setLogin(!login)} className="text-blue-600">
+                            {login ? 'Aún no tiene cuenta?' : 'Ya tiene cuenta?'}
+                        </button>
+                    </form>
+                )}
             </section>
         </PageBase>
     );

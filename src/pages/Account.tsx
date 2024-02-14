@@ -1,18 +1,25 @@
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import PageBase from "./PageBase";
 import { useAccountContext } from "hooks/useAccountContext";
-import { ChangeEvent, FormEvent, useState } from "react";
+import { ChangeEvent, FormEvent, useEffect, useState } from "react";
 
 const Account = () => {
     const context = useAccountContext()
     const account_id = Number(useParams()['id'])
     const account = context.accounts[account_id]
+    const navigate = useNavigate()
 
     const [movementType, setMovementType] = useState(0)
-    const [amount, setAmount] = useState<number>()
+    const [amount, setAmount] = useState<number>(0)
     const [destiny, setDestiny] = useState("")
     const [errors, setErrors] = useState<formErrors>()
     const [rMessage, setRMessage] = useState("")
+
+    useEffect(() => {
+        if (account.token === undefined) {
+            navigate('/')
+        }
+    }, [account, navigate])
 
     const onChange = (e: ChangeEvent<HTMLInputElement>) => {
         if (e.target.id === "D" || e.target.id === "R" || e.target.id === "T") {
